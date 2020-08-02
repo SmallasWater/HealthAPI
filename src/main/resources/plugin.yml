@@ -1,0 +1,11 @@
+name: HealthAPI
+main: healthapi.HealthMainClass
+version: "1.1.7"
+api: ["1.0.9"]
+load: POSTWORLD
+author: SmallasWater
+
+permissions:
+  healthapi.vh:
+    description: "设置虚拟血量"
+    default: op
