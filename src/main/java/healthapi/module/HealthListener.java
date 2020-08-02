@@ -130,7 +130,7 @@ public class HealthListener implements Listener {
         if(player != null) {
             PlayerHealth health = PlayerHealth.getPlayerHealth(player);
             if(health.isDeath()){
-                health.setSpawnHealth();
+                health.reset();
             }
             health.save();
         }
@@ -141,7 +141,7 @@ public class HealthListener implements Listener {
         Player entity = event.getPlayer();
         PlayerHealth health = PlayerHealth.getPlayerHealth(entity);
         if(health.isDeath()) {
-            health.setSpawnHealth();
+            health.reset();
         }
     }
 

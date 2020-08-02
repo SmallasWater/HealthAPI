@@ -233,12 +233,19 @@ public class PlayerHealth  {
 
     }
 
+    /**
+    * 初始化
+     * */
     public void reset(){
         Player player = Server.getInstance().getPlayer(playerName);
         if(player != null){
             player.setHealth(getPlayerHealth());
             player.setMaxHealth(HealthMainClass.MAIN_CLASS.getDefaultHealth());
         }
+        if(isDeath){
+            isDeath = false;
+        }
+        this.health = getMaxHealth();
     }
 
     /**
@@ -321,13 +328,13 @@ public class PlayerHealth  {
        return (health / (double) getMaxHealth()) * 100;
     }
 
-    /**
-     * 设置玩家重生血量
-     * */
-    public void setSpawnHealth(){
-       this.health = getMaxHealth();
-       this.isDeath = false;
-    }
+//    /**
+//     * 设置玩家重生血量
+//     * */
+//    public void setSpawnHealth(){
+//       this.health = getMaxHealth();
+//       this.isDeath = false;
+//    }
 
     private LinkedHashMap<String,Object> getMap(){
        LinkedHashMap<String,Object> maps = new LinkedHashMap<>();
