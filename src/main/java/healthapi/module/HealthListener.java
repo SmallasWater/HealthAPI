@@ -67,11 +67,12 @@ public class HealthListener implements Listener {
                         /*
                         * 判断死亡条件
                         * */
-                        if(health.getHealth() < 1 || health.isDeath()) {
+                        if( health.isDeath()) {
                             /*
                             * 强行击杀
                             * */
-                            entity.kill();
+                            entity.setHealth(0);
+                            event.setCancelled();
                             if(!health.isDeath()) {
                                 health.setDeath(true);
                             }
@@ -116,7 +117,9 @@ public class HealthListener implements Listener {
                        * 强制击杀
                        * */
                         if(entity.isAlive()){
-                            entity.kill();
+                            event.setCancelled();
+                            entity.setHealth(0);
+
                         }
                     }
                 }

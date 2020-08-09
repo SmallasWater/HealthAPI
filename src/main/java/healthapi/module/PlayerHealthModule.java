@@ -35,7 +35,7 @@ public class PlayerHealthModule{
         module = this;
         HealthMainClass.MAIN_CLASS.getLogger().info("虚拟血量模块已启动..");
         config = new Config(getModuleInfo().getDataFolder()+"/healthConfig.yml",Config.YAML);
-       init();
+        init();
         this.registerCommand();
         this.registerListener();
     }
