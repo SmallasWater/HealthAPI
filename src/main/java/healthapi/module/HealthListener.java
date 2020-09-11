@@ -22,6 +22,9 @@ public class HealthListener implements Listener {
         Player player =  event.getPlayer();
         if(!HealthMainClass.MAIN_CLASS.worlds.contains(player.getLevel().getFolderName())){
             PlayerHealth health = PlayerHealth.getPlayerHealth(player.getName());
+            if(health.isDeath()){
+                health.setDeath(false);
+            }
             player.setHealth(health.getPlayerHealth());
             if(player.getMaxHealth() != HealthMainClass.MAIN_CLASS.getDefaultHealth()) {
                 player.setMaxHealth(HealthMainClass.MAIN_CLASS.getDefaultHealth());
@@ -52,7 +55,6 @@ public class HealthListener implements Listener {
                     }
                     /*
                     *判断是否"死亡"
-                    *
                     * 防止死亡后进一步受到伤害
                     * */
                     if(!health.isDeath()) {
@@ -71,11 +73,8 @@ public class HealthListener implements Listener {
                             /*
                             * 强行击杀
                             * */
-                            entity.setHealth(0);
                             event.setCancelled();
-                            if(!health.isDeath()) {
-                                health.setDeath(true);
-                            }
+                            health.addDeath();
                             return;
                         }
                         /*
@@ -119,7 +118,6 @@ public class HealthListener implements Listener {
                         if(entity.isAlive()){
                             event.setCancelled();
                             entity.setHealth(0);
-
                         }
                     }
                 }
@@ -159,8 +157,13 @@ public class HealthListener implements Listener {
                 PlayerHealth health = PlayerHealth.getPlayerHealth((Player) entity);
                 if (!health.isDeath()) {
                     if (health.getHealth() < health.getMaxHealth()) {
-                        health.setHealth(health.getHealth() + event.getAmount());
-                        entity.setHealth(health.getPlayerHealth());
+                        if(health.getHealth() + event.getAmount() > health.getMaxHealth()){
+                            health.setHealth(health.getMaxHealth());
+                            entity.setHealth(health.getPlayerHealth());
+                        }else{
+                            health.setHealth(health.getHealth() + event.getAmount());
+                            entity.setHealth(health.getPlayerHealth());
+                        }
                     }
                 }
             }

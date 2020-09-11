@@ -30,6 +30,8 @@ public class PlayerHealth  {
 
    private boolean isDeath = false;
 
+   private LinkedHashMap<String,Boolean> healthAdd = new LinkedHashMap<>();
+
 
 
    /**
@@ -52,6 +54,30 @@ public class PlayerHealth  {
        this(playerName,HealthMainClass.MAIN_CLASS.getDefaultHealth(),HealthMainClass.MAIN_CLASS.getDefaultHealth(),new LinkedHashMap<>(),new LinkedHashMap<>());
    }
 
+   /**
+    * 判断虚拟血量上限是否受血量加成影响
+    * */
+    public boolean isHealthAdd(String worldName) {
+        if(worldName != null) {
+            if (healthAdd.containsKey(worldName)) {
+                return healthAdd.get(worldName);
+            }
+            return true;
+        }
+        return true;
+    }
+    /**
+     * 判断虚拟血量上限是否受血量加成影响
+     * */
+    public boolean isHealthAdd() {
+        return isHealthAdd(null);
+    }
+    /**
+     * 设置虚拟血量上限是否受血量加成影响
+     * */
+    public void setHealthAdd(String worldName,boolean healthAdd) {
+        this.healthAdd.put(worldName,healthAdd);
+    }
 
     /**
     * 获取玩家虚拟血量类
@@ -129,11 +155,8 @@ public class PlayerHealth  {
                 if (this.health > 1 && getPlayerHealth() < 2) {
                     player.setHealth(4);
                 }
-
             }
-
         }
-
     }
 
 
@@ -191,17 +214,21 @@ public class PlayerHealth  {
      * */
     public int getMaxHealth() {
         Player player = Server.getInstance().getPlayer(playerName);
+        String levelName = null;
         int health = this.maxHealth;
         if(player != null){
-            if(HealthMainClass.MAIN_CLASS.worlds.contains(player.getLevel().getFolderName())){
+            levelName = player.getLevel().getFolderName();
+            if(HealthMainClass.MAIN_CLASS.worlds.contains(levelName)){
                 return player.getMaxHealth();
             }
-            if(levelHealth.containsKey(player.getLevel().getFolderName())){
-                health = getLevelHealth(player.getLevel().getFolderName());
+            if(levelHealth.containsKey(levelName)){
+                health = getLevelHealth(levelName);
             }
         }
-        for(int value:addHeaths.values()){
-            health += value;
+        if(isHealthAdd(levelName)) {
+            for (int value : addHeaths.values()) {
+                health += value;
+            }
         }
         return health;
 
@@ -310,6 +337,14 @@ public class PlayerHealth  {
             }
         }
         return playerHealth;
+    }
+
+    public void addDeath(){
+        isDeath = true;
+        Player player = Server.getInstance().getPlayer(playerName);
+        if(player != null){
+            player.setHealth(0);
+        }
     }
 
 
