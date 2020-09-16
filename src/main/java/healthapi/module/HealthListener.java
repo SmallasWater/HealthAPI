@@ -32,10 +32,11 @@ public class HealthListener implements Listener {
                 player.setMaxHealth(HealthMainClass.MAIN_CLASS.getDefaultHealth());
             }
         }
-        Server.getInstance().getScheduler().scheduleRepeatingTask(new HealTask(player,HealthMainClass.MAIN_CLASS)
-                ,HealthMainClass.MAIN_CLASS.getConfig().getInt("生命恢复.间隔(刻)",60));
+        if(HealthMainClass.MAIN_CLASS.getConfig().getBoolean("生命恢复.是否开启",true)) {
+            Server.getInstance().getScheduler().scheduleRepeatingTask(new HealTask(player, HealthMainClass.MAIN_CLASS)
+                    , HealthMainClass.MAIN_CLASS.getConfig().getInt("生命恢复.间隔(刻)", 60));
 
-
+        }
 
     }
 
