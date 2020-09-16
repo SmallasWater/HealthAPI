@@ -442,7 +442,13 @@ public class PlayerHealth  {
         for(Object s:m.keySet()){
             levelHealth.put(s.toString(),Integer.parseInt(m.get(s).toString()));
         }
-        return new PlayerHealth(name,health,maxHealth,addHealth,levelHealth);
+        PlayerHealth health1 =  new PlayerHealth(name,health,maxHealth,addHealth,levelHealth);
+        if(map.containsKey("heal")) {
+            health1.setHeal((double) map.get("heal"));
+        }else{
+            health1.setHeal(HealthMainClass.MAIN_CLASS.getConfig().getDouble("生命恢复.数值",0.5));
+        }
+        return health1;
 
     }
 
