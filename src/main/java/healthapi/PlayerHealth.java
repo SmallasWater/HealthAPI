@@ -4,6 +4,7 @@ package healthapi;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.utils.Config;
+import healthapi.events.PlayerHealEvent;
 import healthapi.module.PlayerHealthModule;
 
 
@@ -18,19 +19,22 @@ import java.util.Map;
  */
 public class PlayerHealth  {
 
-   private String playerName;
 
-   private double health;
+    private double heal = 0.5;
 
-   private int maxHealth;
+    private final String playerName;
 
-   private LinkedHashMap<String,Integer> addHeaths;
+    private double health;
 
-   private LinkedHashMap<String,Integer> levelHealth;
+    private int maxHealth;
 
-   private boolean isDeath = false;
+    private LinkedHashMap<String,Integer> addHeaths;
 
-   private LinkedHashMap<String,Boolean> healthAdd = new LinkedHashMap<>();
+    private LinkedHashMap<String,Integer> levelHealth;
+
+    private boolean isDeath = false;
+
+    private LinkedHashMap<String,Boolean> healthAdd = new LinkedHashMap<>();
 
 
 
@@ -44,6 +48,7 @@ public class PlayerHealth  {
        this.addHeaths = addHeaths;
        this.levelHealth = levelhealth;
    }
+
 
     public void setDeath(boolean death) {
         isDeath = death;
@@ -78,6 +83,16 @@ public class PlayerHealth  {
     public void setHealthAdd(String worldName,boolean healthAdd) {
         this.healthAdd.put(worldName,healthAdd);
     }
+
+    public void setHeal(double heal) {
+        this.heal = heal;
+    }
+
+    public double getHeal() {
+        return heal;
+    }
+
+
 
     /**
     * 获取玩家虚拟血量类
@@ -130,6 +145,32 @@ public class PlayerHealth  {
 
     public boolean isDeath(){
         return isDeath;
+    }
+
+    /**
+     * 增加血量
+     * @param health 血量值
+     * */
+    public void heal(double health){
+        Player player = Server.getInstance().getPlayer(playerName);
+        if(!isDeath){
+            if(player != null) {
+                PlayerHealEvent event = new PlayerHealEvent(player,heal);
+                Server.getInstance().getPluginManager().callEvent(event);
+                if(event.isCancelled()){
+                    return;
+                }
+                health = event.getAmount();
+            }
+            if(this.health + health > getMaxHealth()){
+                this.health = getMaxHealth();
+            }else{
+                this.health += health;
+            }
+        }
+        if(player != null){
+            player.setHealth(getPlayerHealth());
+        }
     }
 
     /**
@@ -377,6 +418,7 @@ public class PlayerHealth  {
        maps.put("maxHealth", maxHealth);
        maps.put("addHeaths", addHeaths);
        maps.put("levelHealth", levelHealth);
+       maps.put("heal",heal);
 
        return maps;
     }

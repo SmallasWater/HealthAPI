@@ -21,7 +21,7 @@ import java.util.ArrayList;
 public class HealthCommand extends BaseCommand {
 
 
-    public HealthCommand( String command, String description) {
+    public HealthCommand(String command, String description) {
         super(command, description);
         this.setUsage("/vh help");
         this.setPermission("healthapi.vh");

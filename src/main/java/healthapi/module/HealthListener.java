@@ -1,6 +1,7 @@
 package healthapi.module;
 
 import cn.nukkit.Player;
+import cn.nukkit.Server;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.EventPriority;
@@ -10,6 +11,7 @@ import cn.nukkit.event.entity.EntityRegainHealthEvent;
 import cn.nukkit.event.player.PlayerJoinEvent;
 import cn.nukkit.event.player.PlayerQuitEvent;
 import cn.nukkit.event.player.PlayerRespawnEvent;
+import healthapi.HealTask;
 import healthapi.HealthMainClass;
 import healthapi.PlayerHealth;
 
@@ -29,8 +31,10 @@ public class HealthListener implements Listener {
             if(player.getMaxHealth() != HealthMainClass.MAIN_CLASS.getDefaultHealth()) {
                 player.setMaxHealth(HealthMainClass.MAIN_CLASS.getDefaultHealth());
             }
-
         }
+        Server.getInstance().getScheduler().scheduleRepeatingTask(new HealTask(player,HealthMainClass.MAIN_CLASS)
+                ,HealthMainClass.MAIN_CLASS.getConfig().getInt("生命恢复.间隔(刻)",60));
+
 
 
     }
@@ -112,6 +116,7 @@ public class HealthListener implements Listener {
                         * */
                         event.setDamage((float) damages);
                     }else{
+
                        /*
                        * 强制击杀
                        * */
@@ -154,18 +159,13 @@ public class HealthListener implements Listener {
         if (entity instanceof Player) {
             if(!HealthMainClass.MAIN_CLASS.worlds.contains(entity.getLevel().getFolderName())) {
                 event.setCancelled();
-                PlayerHealth health = PlayerHealth.getPlayerHealth((Player) entity);
-                if (!health.isDeath()) {
-                    if (health.getHealth() < health.getMaxHealth()) {
-                        if(health.getHealth() + event.getAmount() > health.getMaxHealth()){
-                            health.setHealth(health.getMaxHealth());
-                            entity.setHealth(health.getPlayerHealth());
-                        }else{
-                            health.setHealth(health.getHealth() + event.getAmount());
-                            entity.setHealth(health.getPlayerHealth());
-                        }
+                if(HealthMainClass.MAIN_CLASS.getConfig().getBoolean("是否关闭饱食度回血",false)){
+                    if(event.getRegainReason() == EntityRegainHealthEvent.CAUSE_EATING){
+                        return;
                     }
                 }
+                PlayerHealth health = PlayerHealth.getPlayerHealth((Player) entity);
+                health.heal(event.getAmount());
             }
         }
     }
