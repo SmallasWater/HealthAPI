@@ -35,21 +35,25 @@ public class PlayerHealthModule{
         module = this;
         HealthMainClass.MAIN_CLASS.getLogger().info("虚拟血量模块已启动..");
         config = new Config(getModuleInfo().getDataFolder()+"/healthConfig.yml",Config.YAML);
-        init();
+//        init();
         this.registerCommand();
         this.registerListener();
     }
 
-    private void init(){
-        Map<String,Object> map = config.getAll();
-        for(String name: map.keySet()){
-            health.put(name,PlayerHealth.formMap(name,(Map) map.get(name)));
-        }
-    }
+//    private void init(){
+//        Map<String,Object> map = config.getAll();
+//        for(String name: map.keySet()){
+//            health.put(name,PlayerHealth.formMap(name,(Map) map.get(name)));
+//        }
+//    }
 
     public static PlayerHealth getPlayerHealth(String playerName){
         if(!getModule().health.containsKey(playerName)){
-            getModule().health.put(playerName,new PlayerHealth(playerName));
+            if(getModule().config.exists(playerName)){
+                getModule().health.put(playerName,PlayerHealth.formMap(playerName,((Map) module.config.get(playerName))));
+            }else{
+                getModule().health.put(playerName,new PlayerHealth(playerName));
+            }
         }
         return getModule().health.get(playerName);
     }

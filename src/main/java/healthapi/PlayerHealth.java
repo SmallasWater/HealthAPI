@@ -404,13 +404,7 @@ public class PlayerHealth  {
        return (health / (double) getMaxHealth()) * 100;
     }
 
-//    /**
-//     * 设置玩家重生血量
-//     * */
-//    public void setSpawnHealth(){
-//       this.health = getMaxHealth();
-//       this.isDeath = false;
-//    }
+
 
     private LinkedHashMap<String,Object> getMap(){
        LinkedHashMap<String,Object> maps = new LinkedHashMap<>();
@@ -450,6 +444,13 @@ public class PlayerHealth  {
         }
         return health1;
 
+    }
+    /**
+     * 要留着的
+     * */
+    @Deprecated
+    public void setSpawnHealth(){
+        reset();
     }
 
 

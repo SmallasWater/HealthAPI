@@ -8,6 +8,7 @@ import cn.nukkit.event.EventPriority;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.event.entity.EntityRegainHealthEvent;
+import cn.nukkit.event.player.PlayerDeathEvent;
 import cn.nukkit.event.player.PlayerJoinEvent;
 import cn.nukkit.event.player.PlayerQuitEvent;
 import cn.nukkit.event.player.PlayerRespawnEvent;
@@ -117,17 +118,26 @@ public class HealthListener implements Listener {
                         * */
                         event.setDamage((float) damages);
                     }else{
-
                        /*
                        * 强制击杀
                        * */
                         if(entity.isAlive()){
                             event.setCancelled();
                             entity.setHealth(0);
+
                         }
                     }
                 }
             }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent event){
+        Player entity = event.getEntity();
+        PlayerHealth health = PlayerHealth.getPlayerHealth(entity);
+        if(health.isDeath()) {
+            health.reset();
         }
     }
 
