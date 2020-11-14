@@ -137,7 +137,7 @@ public class HealthListener implements Listener {
         Player entity = event.getEntity();
         PlayerHealth health = PlayerHealth.getPlayerHealth(entity);
         if(health.isDeath()) {
-            health.reset();
+            health.setSpawnHealth();
         }
     }
 

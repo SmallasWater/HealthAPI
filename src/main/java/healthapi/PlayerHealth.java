@@ -167,10 +167,11 @@ public class PlayerHealth  {
             }else{
                 this.health += health;
             }
+            if(player != null){
+                player.setHealth(getPlayerHealth());
+            }
         }
-        if(player != null){
-            player.setHealth(getPlayerHealth());
-        }
+
     }
 
     /**
@@ -306,6 +307,7 @@ public class PlayerHealth  {
      * */
     public void reset(){
         Player player = Server.getInstance().getPlayer(playerName);
+        this.health = getMaxHealth();
         if(player != null){
             player.setHealth(getPlayerHealth());
             player.setMaxHealth(HealthMainClass.MAIN_CLASS.getDefaultHealth());
@@ -313,7 +315,7 @@ public class PlayerHealth  {
         if(isDeath){
             isDeath = false;
         }
-        this.health = getMaxHealth();
+
     }
 
     /**
@@ -450,7 +452,8 @@ public class PlayerHealth  {
      * */
     @Deprecated
     public void setSpawnHealth(){
-        reset();
+        this.health = getMaxHealth();
+
     }
 
 
