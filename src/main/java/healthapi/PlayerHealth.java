@@ -5,6 +5,7 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.utils.Config;
 import healthapi.events.PlayerHealEvent;
+import healthapi.module.HealthListener;
 import healthapi.module.PlayerHealthModule;
 
 
@@ -180,6 +181,7 @@ public class PlayerHealth  {
      * */
     public void setHealth(double health) {
         Player player = Server.getInstance().getPlayer(playerName);
+
         this.health = health;
         if(player != null){
             /*
@@ -190,6 +192,7 @@ public class PlayerHealth  {
                 setDeath(true);
                 return;
             }
+
             /*
             防止原生血量过低导致被击杀
             * */
@@ -386,7 +389,7 @@ public class PlayerHealth  {
         isDeath = true;
         Player player = Server.getInstance().getPlayer(playerName);
         if(player != null){
-            player.setHealth(0);
+            player.kill();
         }
     }
 
@@ -395,7 +398,12 @@ public class PlayerHealth  {
      * 设置玩家受到攻击后的真实血量
      * */
     public void setDamageHealth(float damage){
-       setHealth(health - damage);
+        if(HealthListener.damage.contains(playerName)){
+            return;
+        }
+        setHealth(health - damage);
+
+
     }
 
     /**

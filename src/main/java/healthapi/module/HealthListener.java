@@ -16,10 +16,14 @@ import healthapi.HealTask;
 import healthapi.HealthMainClass;
 import healthapi.PlayerHealth;
 
+import java.util.LinkedList;
+
 /**
  * @author SmallasWater
  */
 public class HealthListener implements Listener {
+
+    public static LinkedList<String> damage = new LinkedList<>();
     @EventHandler
     public void onJoin(PlayerJoinEvent event){
         Player player =  event.getPlayer();
@@ -44,89 +48,32 @@ public class HealthListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onDamage(EntityDamageEvent event){
-        if(!event.isCancelled()){
+        if (!event.isCancelled()) {
             Entity entity = event.getEntity();
-            if(entity instanceof Player){
-                if(!HealthMainClass.MAIN_CLASS.worlds.contains(entity.getLevel().getFolderName())) {
-                    PlayerHealth health = PlayerHealth.getPlayerHealth((Player) entity);
-                    /*
-                    * 获取伤害数值
-                    * */
-                    float damage = event.getFinalDamage();
-                    /*
-                    * 伤害小于0强制设置为1
-                    * */
-                    if(damage < 0){
-                        damage = 1;
-                    }
-                    /*
-                    *判断是否"死亡"
-                    * 防止死亡后进一步受到伤害
-                    * */
-                    if(!health.isDeath()) {
-                        /*
-                        *设置被攻击后的虚拟血量
-                        * */
-                        health.setDamageHealth(damage);
-                        /*
-                        * 防止血量出现迷之鬼畜
-                        * */
-                        entity.setHealth(health.getPlayerHealth());
-                        /*
-                        * 判断死亡条件
-                        * */
-                        if( health.isDeath()) {
-                            /*
-                            * 强行击杀
-                            * */
-                            event.setCancelled();
-                            health.addDeath();
-                            return;
-                        }
-                        /*
-                        * 计算伤害对于的百分比
-                        * */
-                        double remove = (double) damage/ (double) health.getMaxHealth();
-                        /*
-                        * 调整伤害数值
-                        * */
-                        double damages =  remove * damage;
-                        if(entity.getHealth() == 4 && health.getHealth() > 4){
-                            damages = 0;
-                        }
-                        /*
-                        * 当伤害过低
-                        * */
-                        if(damages <= 1){
-                            /*
-                            * 如果原生血量为保底血量
-                            * */
-                            if(damages == 0){
-                                /*
-                                * 维持原生血量状态
-                                * */
-                                entity.setHealth(health.getPlayerHealth());
-                            }
-                            /*
-                            * 再次强制修正为1
-                            * 用处: 解决触碰仙人掌 飞速扣血bug
-                            * */
-                            damages = 1;
-                        }
-                        /*
-                        * 重设伤害数值
-                        * */
-                        event.setDamage((float) damages);
-                    }else{
-                       /*
-                       * 强制击杀
-                       * */
-                        if(entity.isAlive()){
-                            event.setCancelled();
-                            entity.setHealth(0);
+            if (entity instanceof Player && !HealthMainClass.MAIN_CLASS.worlds.contains(entity.getLevel().getFolderName())) {
+                PlayerHealth health = PlayerHealth.getPlayerHealth((Player)entity);
+                float damage = event.getDamage();
+                if (damage < 0.0F) {
+                    damage = 1.0F;
+                }
 
-                        }
+                if (!health.isDeath()) {
+                    health.setDamageHealth(damage);
+                    double remove = (double)damage / (double)health.getMaxHealth();
+                    double damages = remove * (double)entity.getMaxHealth();
+                    if (entity.getHealth() == 4.0F && health.getHealth() > 4.0D) {
+                        damages = 0.0D;
                     }
+                    if (damages <= 1.0D) {
+                        if (damages == 0.0D) {
+                            entity.setHealth(health.getPlayerHealth());
+                        }
+
+                        damages = 1.0D;
+                    }
+                    event.setDamage((float)damages);
+                }else{
+                    event.setCancelled();
                 }
             }
         }
@@ -159,6 +106,16 @@ public class HealthListener implements Listener {
         PlayerHealth health = PlayerHealth.getPlayerHealth(entity);
         if(health.isDeath()) {
             health.reset();
+            damage.add(entity.getName());
+            Server.getInstance().getScheduler().scheduleDelayedTask(HealthMainClass.MAIN_CLASS, new Runnable() {
+                @Override
+                public void run() {
+                    if(health.getHealth() != health.getMaxHealth()){
+                        health.setHealth(health.getMaxHealth());
+                    }
+                    damage.remove(entity.getName());
+                }
+            },40);
         }
     }
 
@@ -171,7 +128,7 @@ public class HealthListener implements Listener {
             if(!HealthMainClass.MAIN_CLASS.worlds.contains(entity.getLevel().getFolderName())) {
                 event.setCancelled();
                 if(HealthMainClass.MAIN_CLASS.getConfig().getBoolean("是否关闭饱食度回血",false)){
-                    if(event.getRegainReason() == EntityRegainHealthEvent.CAUSE_EATING){
+                    if (event.getRegainReason() == EntityRegainHealthEvent.CAUSE_EATING) {
                         return;
                     }
                 }
