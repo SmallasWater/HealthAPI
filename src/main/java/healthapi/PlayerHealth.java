@@ -95,6 +95,7 @@ public class PlayerHealth  {
 
 
 
+
     /**
     * 获取玩家虚拟血量类
     * @param player 玩家类
@@ -180,28 +181,38 @@ public class PlayerHealth  {
      * @param health 虚拟血量值
      * */
     public void setHealth(double health) {
-        Player player = Server.getInstance().getPlayer(playerName);
+        setHealth(health,false);
+    }
 
+    /**
+     * 设置玩家虚拟血量 如果玩家在线 同步玩家血量
+     * @param health 虚拟血量值
+     * */
+    public void setHealth(double health,boolean finals) {
+        Player player = Server.getInstance().getPlayer(playerName);
         this.health = health;
-        if(player != null){
-            /*
-            * 判断死亡条件
-            * 设置为 death
-            * */
-            if(this.health < 1){
-                setDeath(true);
-                return;
-            }
+        if(!finals){
+            if(player != null){
+                /*
+                 * 判断死亡条件
+                 * 设置为 death
+                 * */
+                if(this.health < 1){
+                    addDeath();
+                    return;
+                }
 
             /*
             防止原生血量过低导致被击杀
             * */
-            if(!HealthMainClass.MAIN_CLASS.worlds.contains(player.getLevel().getFolderName())) {
-                if (this.health > 1 && getPlayerHealth() < 2) {
-                    player.setHealth(4);
+                if(!HealthMainClass.MAIN_CLASS.worlds.contains(player.getLevel().getFolderName())) {
+                    if (this.health > 1 && getPlayerHealth() < 2) {
+                        player.setHealth(8);
+                    }
                 }
             }
         }
+
     }
 
 
@@ -248,7 +259,7 @@ public class PlayerHealth  {
     /**
      * 设置玩家世界独立血量
      * @param levelName 世界名称
-     * @param maxHealth 最大血量
+     * @param maxHealth 最大血量 
      * */
     public void setLevelHealth(String levelName,int maxHealth){
         levelHealth.put(levelName,maxHealth);
@@ -369,7 +380,7 @@ public class PlayerHealth  {
     public float getPlayerHealth(){
         float playerHealth = (float) ((float)HealthMainClass.MAIN_CLASS.getDefaultHealth() * (getHealthPercentage() / 100));
         if(health > 1 && playerHealth < 2){
-            playerHealth = 4.0F;
+            playerHealth = 8.0F;
         }
         if(health < 1){
             return 0;
@@ -389,7 +400,9 @@ public class PlayerHealth  {
         isDeath = true;
         Player player = Server.getInstance().getPlayer(playerName);
         if(player != null){
-            player.kill();
+            if(player.isAlive()) {
+                player.setHealth(0);
+            }
         }
     }
 
@@ -398,7 +411,7 @@ public class PlayerHealth  {
      * 设置玩家受到攻击后的真实血量
      * */
     public void setDamageHealth(float damage){
-        if(HealthListener.damage.contains(playerName)){
+        if(isDeath){
             return;
         }
         setHealth(health - damage);

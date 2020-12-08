@@ -23,7 +23,7 @@ import java.util.LinkedList;
  */
 public class HealthListener implements Listener {
 
-    public static LinkedList<String> damage = new LinkedList<>();
+//    public static LinkedList<String> damage = new LinkedList<>();
     @EventHandler
     public void onJoin(PlayerJoinEvent event){
         Player player =  event.getPlayer();
@@ -53,27 +53,34 @@ public class HealthListener implements Listener {
             if (entity instanceof Player && !HealthMainClass.MAIN_CLASS.worlds.contains(entity.getLevel().getFolderName())) {
                 PlayerHealth health = PlayerHealth.getPlayerHealth((Player)entity);
                 float damage = event.getDamage();
-                if (damage < 0.0F) {
+                if (damage < 0) {
                     damage = 1.0F;
                 }
 
                 if (!health.isDeath()) {
                     health.setDamageHealth(damage);
-                    double remove = (double)damage / (double)health.getMaxHealth();
-                    double damages = remove * (double)entity.getMaxHealth();
-                    if (entity.getHealth() == 4.0F && health.getHealth() > 4.0D) {
-                        damages = 0.0D;
-                    }
-                    if (damages <= 1.0D) {
-                        if (damages == 0.0D) {
+                    if(!health.isDeath()){
+                        double remove = (double)damage / (double)health.getMaxHealth();
+                        double damages = remove * (double)entity.getMaxHealth();
+                        if ((int)entity.getHealth() == 8 && (int)health.getHealth() > 8) {
+                            damages = 0;
+                        }
+
+                        if(event.getFinalDamage() > entity.getHealth()){
+                            event.setDamage((float) damages);
+                        }else{
                             entity.setHealth(health.getPlayerHealth());
                         }
 
-                        damages = 1.0D;
+
+                    }else{
+                        event.setCancelled();
                     }
-                    event.setDamage((float)damages);
                 }else{
                     event.setCancelled();
+                    if(entity.isAlive()){
+                        entity.setHealth(0);
+                    }
                 }
             }
         }
@@ -84,7 +91,10 @@ public class HealthListener implements Listener {
         Player entity = event.getEntity();
         PlayerHealth health = PlayerHealth.getPlayerHealth(entity);
         if(health.isDeath()) {
-            health.setSpawnHealth();
+            health.reset();
+        }else{
+            health.setDeath(true);
+            health.setHealth(0,true);
         }
     }
 
@@ -106,16 +116,16 @@ public class HealthListener implements Listener {
         PlayerHealth health = PlayerHealth.getPlayerHealth(entity);
         if(health.isDeath()) {
             health.reset();
-            damage.add(entity.getName());
-            Server.getInstance().getScheduler().scheduleDelayedTask(HealthMainClass.MAIN_CLASS, new Runnable() {
-                @Override
-                public void run() {
-                    if(health.getHealth() != health.getMaxHealth()){
-                        health.setHealth(health.getMaxHealth());
-                    }
-                    damage.remove(entity.getName());
-                }
-            },40);
+//            damage.add(entity.getName());
+//            Server.getInstance().getScheduler().scheduleDelayedTask(HealthMainClass.MAIN_CLASS, new Runnable() {
+//                @Override
+//                public void run() {
+//                    if(health.getHealth() != health.getMaxHealth()){
+//                        health.setHealth(health.getMaxHealth());
+//                    }
+//                    damage.remove(entity.getName());
+//                }
+//            },40);
         }
     }
 
