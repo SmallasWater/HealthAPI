@@ -157,7 +157,7 @@ public class PlayerHealth  {
         Player player = Server.getInstance().getPlayer(playerName);
         if(!isDeath){
             if(player != null) {
-                PlayerHealEvent event = new PlayerHealEvent(player,heal);
+                PlayerHealEvent event = new PlayerHealEvent(player,health);
                 Server.getInstance().getPluginManager().callEvent(event);
                 if(event.isCancelled()){
                     return;

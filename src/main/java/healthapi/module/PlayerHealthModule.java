@@ -21,7 +21,7 @@ public class PlayerHealthModule{
     private static PlayerHealthModule module;
     private Config config;
 
-    private LinkedHashMap<String,PlayerHealth> health = new LinkedHashMap<>();
+    private static LinkedHashMap<String,PlayerHealth> health = new LinkedHashMap<>();
 
 
     public void moduleDisable() {
@@ -48,14 +48,14 @@ public class PlayerHealthModule{
 //    }
 
     public static PlayerHealth getPlayerHealth(String playerName){
-        if(!getModule().health.containsKey(playerName)){
+        if(!health.containsKey(playerName)){
             if(getModule().config.exists(playerName)){
-                getModule().health.put(playerName,PlayerHealth.formMap(playerName,((Map) module.config.get(playerName))));
+                health.put(playerName,PlayerHealth.formMap(playerName,((Map) module.config.get(playerName))));
             }else{
-                getModule().health.put(playerName,new PlayerHealth(playerName));
+                health.put(playerName,new PlayerHealth(playerName));
             }
         }
-        return getModule().health.get(playerName);
+        return health.get(playerName);
     }
 
     private static HealthMainClass getModuleInfo(){
